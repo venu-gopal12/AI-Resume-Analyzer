@@ -10,7 +10,7 @@ import jobRoutes from "./routes/job.routes.js";
 
 import skillTestRoutes from "./routes/skillTest.routes.js";
 import embeddingTestRoutes from "./routes/embeddingTest.routes.js";
-
+import matchScoreTestRoutes from "./routes/matchScoreTest.routes.js";
 
 
 
@@ -34,6 +34,9 @@ app.use("/api/groq", groqTestRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/skills", skillTestRoutes);
 app.use("/api/embeddings", embeddingTestRoutes);
+
+app.use("/api/match-score", matchScoreTestRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
