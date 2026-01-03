@@ -8,8 +8,13 @@ export default function Analysis() {
   const analysis = state?.analysis;
 
   if (!analysis) {
-    return <div className="p-6">No analysis data found.</div>;
-  }
+  return (
+    <div className="p-6 text-center text-gray-600">
+      No analysis data available. Please analyze a resume first.
+    </div>
+  );
+}
+
 
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
