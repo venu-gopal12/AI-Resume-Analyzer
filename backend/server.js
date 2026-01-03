@@ -11,6 +11,8 @@ import jobRoutes from "./routes/job.routes.js";
 import skillTestRoutes from "./routes/skillTest.routes.js";
 import embeddingTestRoutes from "./routes/embeddingTest.routes.js";
 import matchScoreTestRoutes from "./routes/matchScoreTest.routes.js";
+import analysisRoutes from "./routes/analysis.routes.js";
+
 
 
 
@@ -36,7 +38,7 @@ app.use("/api/skills", skillTestRoutes);
 app.use("/api/embeddings", embeddingTestRoutes);
 
 app.use("/api/match-score", matchScoreTestRoutes);
-
+app.use("/api/analysis", analysisRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

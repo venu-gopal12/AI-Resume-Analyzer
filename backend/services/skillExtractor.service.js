@@ -1,6 +1,6 @@
 import groq from "../utils/groqClient.js";
 
-export const extractSkills = async (text) => {
+export const extractTechnicalData = async (text) => {
   const response = await groq.chat.completions.create({
     model: "llama-3.1-8b-instant",
     temperature: 0,

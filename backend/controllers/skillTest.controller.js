@@ -1,9 +1,9 @@
-import { extractSkills } from "../services/skillExtractor.service.js";
+import { extractTechnicalData  } from "../services/skillExtractor.service.js";
 
 export const testSkillExtraction = async (req, res) => {
   const { text } = req.body;
 
-  const skills = await extractSkills(text);
+  const skills = await extractTechnicalData(text);
 
   res.json(skills);
 };
