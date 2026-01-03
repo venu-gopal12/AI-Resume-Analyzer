@@ -1,12 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
+
 import ProtectedRoute from "./routes/ProtectedRoute";
-
-function Dashboard() {
-  return <h1 className="p-6">Dashboard</h1>;
-}
-
 export default function App() {
   return (
     <BrowserRouter>

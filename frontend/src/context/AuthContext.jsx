@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import api from "../api/axios";
 
 const AuthContext = createContext();
@@ -6,12 +6,22 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // 🔁 Restore token on refresh
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+      setUser({}); // minimal placeholder user
+    }
+    setLoading(false);
+  }, []);
 
   const login = async (email, password) => {
     const res = await api.post("/auth/login", { email, password });
     setToken(res.data.accessToken);
-localStorage.setItem("token", res.data.accessToken);
-
+    localStorage.setItem("token", res.data.accessToken);
     setUser({ email });
   };
 
@@ -22,6 +32,7 @@ localStorage.setItem("token", res.data.accessToken);
   const logout = () => {
     setUser(null);
     setToken(null);
+    localStorage.removeItem("token");
   };
 
   return (
@@ -30,7 +41,8 @@ localStorage.setItem("token", res.data.accessToken);
       token,
       login,
       register,
-      logout
+      logout,
+      loading
     }}>
       {children}
     </AuthContext.Provider>
