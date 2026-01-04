@@ -12,6 +12,14 @@ import skillTestRoutes from "./routes/skillTest.routes.js";
 import embeddingTestRoutes from "./routes/embeddingTest.routes.js";
 import matchScoreTestRoutes from "./routes/matchScoreTest.routes.js";
 import analysisRoutes from "./routes/analysis.routes.js";
+import cookieParser from "cookie-parser";
+import { generalLimiter } from "./middlewares/rateLimit.middleware.js";
+
+
+
+
+
+
 
 
 
@@ -26,6 +34,8 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+app.use(cookieParser());
+app.use(generalLimiter);
 
 app.use("/api/health", healthRoutes);
 app.use("/api/auth", authRoutes);

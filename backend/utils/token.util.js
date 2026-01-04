@@ -1,17 +1,17 @@
 import jwt from "jsonwebtoken";
 
-export const generateAccessToken = (userId) => {
+export const generateAccessToken = (payload) => {
   return jwt.sign(
-    { userId },
-    process.env.JWT_ACCESS_SECRET,
-    { expiresIn: "15m" }
+    payload,
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN }
   );
 };
 
-export const generateRefreshToken = (userId) => {
+export const generateRefreshToken = (payload) => {
   return jwt.sign(
-    { userId },
-    process.env.JWT_REFRESH_SECRET,
-    { expiresIn: "7d" }
+    payload,
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN }
   );
 };

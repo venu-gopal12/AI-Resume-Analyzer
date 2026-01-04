@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import User from "../models/User.model.js";
 import {
   generateAccessToken,
@@ -22,16 +23,59 @@ export const login = async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
-  if (!user) return res.status(401).json({ message: "Invalid credentials" });
+  if (!user) {
+    return res.status(401).json({ message: "Invalid credentials" });
+  }
 
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) {
+    return res.status(401).json({ message: "Invalid credentials" });
+  }
 
-  const accessToken = generateAccessToken(user._id);
-  const refreshToken = generateRefreshToken(user._id);
+  const payload = { userId: user._id };
 
-  user.refreshToken = refreshToken;
-  await user.save();
+  const accessToken = generateAccessToken(payload);
+  const refreshToken = generateRefreshToken(payload);
 
-  res.json({ accessToken, refreshToken });
+  // 🔐 Send refresh token as HttpOnly cookie
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: process.env.COOKIE_SECURE === "true",
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000
+  });
+
+  res.json({
+    accessToken
+  });
+};
+export const refreshAccessToken = (req, res) => {
+  console.log("Cookies received:", req.cookies);
+
+  const token = req.cookies.refreshToken;
+
+  if (!token) {
+    return res.status(401).json({ message: "No refresh token" });
+  }
+
+  try {
+    const decoded = jwt.verify(
+      token,
+      process.env.REFRESH_TOKEN_SECRET
+    );
+
+    const newAccessToken = generateAccessToken({
+      userId: decoded.userId
+    });
+
+    res.json({ accessToken: newAccessToken });
+  } catch (err) {
+    console.error("JWT verify error:", err.message);
+    return res.status(403).json({ message: "Invalid refresh token" });
+  }
+};
+
+export const logout = (req, res) => {
+  res.clearCookie("refreshToken");
+  res.json({ message: "Logged out" });
 };
