@@ -2,11 +2,14 @@ import Resume from "../models/Resume.model.js";
 import Job from "../models/Job.model.js";
 import Analysis from "../models/Analysis.model.js";
 import { extractTechnicalData } from "../services/skillExtractor.service.js";
-import { buildCanonicalText } from "../utils/canonicalText.util.js";
+import { buildCanonicalText } from "../utils/buildCanonicalText.util.js";
+
 import { generateEmbedding } from "../services/embedding.service.js";
 import { calculateMatchScore } from "../services/matchScore.service.js";
 import { findMissingItems } from "../utils/gapAnalysis.util.js";
 import { generateSuggestions } from "../services/suggestion.service.js";
+
+import { canonicalizeSkill } from "../utils/canonicalSkill.util.js";
 
 export const analyzeMatch = async (req, res) => {
   const { resumeId, jobId } = req.body;
@@ -19,6 +22,16 @@ export const analyzeMatch = async (req, res) => {
 
   const resumeText = buildCanonicalText(resumeData);
   const jobText = buildCanonicalText(jobData);
+  console.log("===== RAW EXTRACTION =====");
+  console.log("Resume tools:", resumeData.toolsAndTechnologies);
+  console.log("JD tools:", jobData.toolsAndTechnologies);
+
+  console.log("===== CANONICALIZED =====");
+  console.log(
+    "Resume canon:",
+    resumeData.toolsAndTechnologies.map(canonicalizeSkill)
+  );
+  console.log("JD canon:", jobData.toolsAndTechnologies.map(canonicalizeSkill));
 
   const resumeEmbedding = await generateEmbedding(resumeText);
   const jobEmbedding = await generateEmbedding(jobText);
@@ -29,7 +42,7 @@ export const analyzeMatch = async (req, res) => {
     resumeTools: resumeData.toolsAndTechnologies,
     jdTools: jobData.toolsAndTechnologies,
     resumeAbilities: resumeData.technicalAbilities,
-    jdAbilities: jobData.technicalAbilities
+    jdAbilities: jobData.technicalAbilities,
   });
 
   const missingTools = findMissingItems(
@@ -45,7 +58,7 @@ export const analyzeMatch = async (req, res) => {
   const suggestions = await generateSuggestions({
     missingTools,
     missingAbilities,
-    jobTitle: job.title
+    jobTitle: job.title,
   });
 
   const analysis = await Analysis.create({
@@ -55,7 +68,7 @@ export const analyzeMatch = async (req, res) => {
     matchScore: score,
     missingTools,
     missingAbilities,
-    suggestions
+    suggestions,
   });
 
   res.json(analysis);
