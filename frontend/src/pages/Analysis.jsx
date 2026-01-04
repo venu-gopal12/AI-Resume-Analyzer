@@ -1,10 +1,11 @@
-import { useLocation } from "react-router-dom";
+import { useLocation,useNavigate } from "react-router-dom";
 import MatchScore from "../components/MatchScore";
 import GapList from "../components/GapList";
 import Suggestions from "../components/Suggestions";
 
 export default function Analysis() {
   const { state } = useLocation();
+  const navigate = useNavigate();
   const analysis = state?.analysis;
 
   if (!analysis) {
@@ -18,9 +19,15 @@ export default function Analysis() {
 
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
+      <div className="flex justify-between items-center mb-6">
       <h1 className="text-2xl font-bold mb-6">
         Resume Match Analysis
       </h1>
+      
+       <button onClick={()=> navigate("/dashboard")} className="text-sm text-red-600 underline">
+          Back to Dashboard
+        </button>
+        </div>
 
       <MatchScore score={analysis.matchScore} />
 
