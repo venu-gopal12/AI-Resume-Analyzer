@@ -13,15 +13,9 @@ import embeddingTestRoutes from "./routes/embeddingTest.routes.js";
 import matchScoreTestRoutes from "./routes/matchScoreTest.routes.js";
 import analysisRoutes from "./routes/analysis.routes.js";
 import cookieParser from "cookie-parser";
-import { generalLimiter } from "./middlewares/rateLimit.middleware.js";
-
-
-
-
-
-
-
-
+import { generalLimiter } from "./middlewares/rateLimit.middleware.js";import { globalErrorHandler } from "./middlewares/error.middleware.js";
+import morgan from "morgan";
+import logger from "./utils/logger.js";
 
 
 dotenv.config();
@@ -36,6 +30,17 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 app.use(generalLimiter);
+app.use(globalErrorHandler);
+
+
+app.use(
+  morgan("combined", {
+    stream: {
+      write: (message) => logger.info(message.trim())
+    }
+  })
+);
+
 
 app.use("/api/health", healthRoutes);
 app.use("/api/auth", authRoutes);

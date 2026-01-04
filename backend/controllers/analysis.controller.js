@@ -3,13 +3,18 @@ import Job from "../models/Job.model.js";
 import Analysis from "../models/Analysis.model.js";
 import { extractTechnicalData } from "../services/skillExtractor.service.js";
 import { buildCanonicalText } from "../utils/buildCanonicalText.util.js";
-
 import { generateEmbedding } from "../services/embedding.service.js";
 import { calculateMatchScore } from "../services/matchScore.service.js";
 import { findMissingItems } from "../utils/gapAnalysis.util.js";
 import { generateSuggestions } from "../services/suggestion.service.js";
-
+import logger from "../utils/logger.js";
 import { canonicalizeSkill } from "../utils/canonicalSkill.util.js";
+import {
+  generateCacheKey,
+  getFromCache,
+  setToCache
+} from "../utils/cache.util.js";
+
 
 export const analyzeMatch = async (req, res) => {
   const { resumeId, jobId } = req.body;
@@ -20,8 +25,20 @@ export const analyzeMatch = async (req, res) => {
   const resumeData = await extractTechnicalData(resume.extractedText);
   const jobData = await extractTechnicalData(job.description);
 
-  const resumeText = buildCanonicalText(resumeData);
-  const jobText = buildCanonicalText(jobData);
+ const resumeText = buildCanonicalText(resumeData);
+const jobText = buildCanonicalText(jobData);
+
+const cacheKey = generateCacheKey(resumeText, jobText);
+
+// 🔥 CACHE HIT
+const cachedResult = getFromCache(cacheKey);
+if (cachedResult) {
+  logger.info("Cache hit for analysis", { cacheKey });
+  return res.json(cachedResult);
+}
+// 2️⃣ Cache miss → log ONCE
+logger.info("Cache miss — computing analysis", { cacheKey });
+
   console.log("===== RAW EXTRACTION =====");
   console.log("Resume tools:", resumeData.toolsAndTechnologies);
   console.log("JD tools:", jobData.toolsAndTechnologies);
@@ -70,6 +87,11 @@ export const analyzeMatch = async (req, res) => {
     missingAbilities,
     suggestions,
   });
+  //  STORE IN CACHE
+setToCache(cacheKey, analysis.toObject());
+
+
+logger.info("Cache set for analysis", { cacheKey });
 
   res.json(analysis);
 };

@@ -3,6 +3,7 @@ import { createRequire } from "module";
 import Resume from "../models/Resume.model.js";
 import { cleanText } from "../utils/textClean.util.js";
 
+
 const require = createRequire(import.meta.url);
 const pdfParse = require("pdf-parse");
 
