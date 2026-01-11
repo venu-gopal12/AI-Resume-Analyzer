@@ -38,7 +38,7 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 app.use(generalLimiter);
-app.use(globalErrorHandler);
+
 
 
 app.use(
@@ -62,6 +62,7 @@ app.use("/api/embeddings", embeddingTestRoutes);
 
 app.use("/api/match-score", matchScoreTestRoutes);
 app.use("/api/analysis", analysisRoutes);
+app.use(globalErrorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
