@@ -37,18 +37,18 @@ export const login = async (req, res) => {
   const accessToken = generateAccessToken(payload);
   const refreshToken = generateRefreshToken(payload);
 
-  // 🔐 Send refresh token as HttpOnly cookie
-  // res.cookie("refreshToken", refreshToken, {
-  //   httpOnly: true,
-  //   secure: process.env.COOKIE_SECURE === "true",
-  //   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  //   maxAge: 7 * 24 * 60 * 60 * 1000
-  // });
+
   res.cookie("refreshToken", refreshToken, {
-  httpOnly: true,
-  secure: false,      // ✅ localhost
-  sameSite: "lax"     // ✅ localhost
-});
+    httpOnly: true,
+    secure: process.env.COOKIE_SECURE === "true",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000
+  });
+//   res.cookie("refreshToken", refreshToken, {
+//   httpOnly: true,
+//   secure: false,      // ✅ localhost
+//   sameSite: "lax"     // ✅ localhost
+// });
 
 
   res.json({
