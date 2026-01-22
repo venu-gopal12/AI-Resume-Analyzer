@@ -1,22 +1,14 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import api from "../api/axios";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  // 🔁 Restore token on refresh
-  useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    if (storedToken) {
-      setToken(storedToken);
-      setUser({}); // minimal placeholder user
-    }
-    setLoading(false);
-  }, []);
+  // 🔁 Init state lazily to avoid useEffect sync setState
+  const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const [user, setUser] = useState(() => {
+    return localStorage.getItem("token") ? {} : null;
+  });
 
   const login = async (email, password) => {
     const res = await api.post("/auth/login", { email, password });
@@ -42,11 +34,12 @@ export const AuthProvider = ({ children }) => {
       login,
       register,
       logout,
-      loading
+      loading: false
     }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);
