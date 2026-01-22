@@ -56,44 +56,82 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="p-8 bg-gray-100 min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Resume & Job Analysis</h1>
-        <button
-          onClick={handleLogout}
-          className="text-sm text-red-600 underline"
-        >
-          Logout
-        </button>
+    <div className="min-h-screen bg-gray-50 font-sans text-gray-900 pb-20">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+             <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">A</span>
+             </div>
+             <h1 className="text-xl font-bold tracking-tight text-gray-900">
+              ResumeAI
+            </h1>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+          >
+            Sign out
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <ResumeUpload
-          onUploaded={handleResumeUploaded}
-          existing={resumeId}
-        />
-        <JobForm
-          onCreated={handleJobCreated}
-          existing={jobId}
-        />
+      <div className="max-w-5xl mx-auto px-6 mt-12">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold text-gray-900 tracking-tight mb-3">Optimize your application</h2>
+          <p className="text-gray-500 max-w-2xl mx-auto text-lg">Upload your resume and the job description to get a detailed AI-powered compatibility analysis.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+          <div className="h-full">
+             <ResumeUpload
+               onUploaded={handleResumeUploaded}
+               existing={resumeId}
+             />
+          </div>
+          <div className="h-full">
+            <JobForm
+              onCreated={handleJobCreated}
+              existing={jobId}
+            />
+          </div>
+        </div>
+
+        <div className="mt-10 flex justify-center">
+           <button
+            disabled={!resumeId || !jobId || loading}
+            onClick={analyzeMatch}
+            className={`w-full md:w-auto px-12 py-4 rounded-xl font-bold text-lg shadow-lg transition-all duration-300 transform flex items-center justify-center gap-3
+              ${
+                resumeId && jobId
+                  ? "bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-indigo-500/30 hover:-translate-y-1"
+                  : "bg-gray-200 text-gray-400 cursor-not-allowed shadow-none"
+              }`}
+          >
+            {loading ? (
+              <>
+                <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+                <span>Analyzing data...</span>
+              </>
+            ) : (
+              <>
+               <span>Generate Analysis</span>
+               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+              </>
+            )}
+          </button>
+        </div>
+
+        {error && (
+          <div className="mt-6 p-4 rounded-xl bg-red-50 border border-red-100 text-red-700 text-center text-sm font-medium animate-fade-in">
+            {error}
+          </div>
+        )}
       </div>
-
-      <button
-        disabled={!resumeId || !jobId || loading}
-        onClick={analyzeMatch}
-        className={`mt-6 w-full py-3 rounded text-white font-semibold
-          ${
-            resumeId && jobId
-              ? "bg-blue-600"
-              : "bg-gray-400 cursor-not-allowed"
-          }`}
-      >
-        {loading ? "Analyzing..." : "Analyze Match"}
-      </button>
-
-      {error && (
-        <p className="text-red-600 mt-3 text-center">{error}</p>
-      )}
     </div>
   );
 }

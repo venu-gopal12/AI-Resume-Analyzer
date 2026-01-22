@@ -1,7 +1,7 @@
-export const cleanText = (text) => {
+export const cleanText = (text = "") => {
   return text
     .replace(/\s+/g, " ")
     .replace(/•/g, "")
-    .replace(/[^\x00-\x7F]/g, "")
+    .replace(/[^\u0020-\u007E]/g, "")
     .trim();
 };

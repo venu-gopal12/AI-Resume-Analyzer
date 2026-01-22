@@ -1,5 +1,4 @@
 import multer from "multer";
-import path from "path";
 import fs from "fs";
 
 const uploadDir = "uploads/resumes";
@@ -17,8 +16,11 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (_, file, cb) => {
-  if (file.mimetype === "application/pdf") cb(null, true);
-  else cb(new Error("Only PDF files allowed"), false);
+  if (file.mimetype === "application/pdf") {
+    cb(null, true);
+  } else {
+    cb(new Error("Only PDF files allowed"), false);
+  }
 };
 
 export const uploadResume = multer({
