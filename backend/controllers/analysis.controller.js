@@ -14,6 +14,7 @@ import {
   getFromCache,
   setToCache
 } from "../utils/cache.util.js";
+import { rewriteResumeContent } from "../services/rewrite.service.js";
 
 
 export const analyzeMatch = async (req, res) => {
@@ -94,4 +95,43 @@ setToCache(cacheKey, analysis.toObject());
 logger.info("Cache set for analysis", { cacheKey });
 
   res.json(analysis);
+};
+
+export const getUserHistory = async (req, res) => {
+  try {
+    const history = await Analysis.find({ userId: req.user.userId })
+      .sort({ createdAt: -1 })
+      .select("matchScore createdAt")
+      .populate("jobId", "title company")
+      .limit(10); // Limit to last 10 for now
+
+    res.json(history);
+  } catch (error) {
+    logger.error("Error fetching user history", error);
+    res.status(500).json({ message: "Failed to fetch history" });
+  }
+};
+
+export const rewriteResume = async (req, res) => {
+  const { resumeId, jobId, missingSkills } = req.body;
+
+  try {
+    const resume = await Resume.findById(resumeId);
+    const job = await Job.findById(jobId);
+
+    if (!resume || !job) {
+      return res.status(404).json({ message: "Resume or Job not found" });
+    }
+
+    const rewrites = await rewriteResumeContent({
+      resumeText: resume.extractedText,
+      jobDescription: job.description,
+      missingSkills: missingSkills || []
+    });
+
+    res.json(rewrites);
+  } catch (error) {
+    logger.error("Error rewriting resume", error);
+    res.status(500).json({ message: "Failed to rewrite resume" });
+  }
 };

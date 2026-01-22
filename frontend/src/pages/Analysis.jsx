@@ -1,4 +1,6 @@
-import { useLocation,useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import api from "../api/axios";
 import MatchScore from "../components/MatchScore";
 import GapList from "../components/GapList";
 import Suggestions from "../components/Suggestions";
@@ -7,6 +9,25 @@ export default function Analysis() {
   const { state } = useLocation();
   const navigate = useNavigate();
   const analysis = state?.analysis;
+
+  const [rewrites, setRewrites] = useState(null);
+  const [loadingRewrite, setLoadingRewrite] = useState(false);
+
+  const handleRewrite = async () => {
+    setLoadingRewrite(true);
+    try {
+      const res = await api.post("/analysis/rewrite", {
+        resumeId: analysis.resumeId,
+        jobId: analysis.jobId,
+        missingSkills: [...analysis.missingTools, ...analysis.missingAbilities]
+      });
+      setRewrites(res.data.rewrites);
+    } catch (error) {
+      console.error("Rewrite failed", error);
+    } finally {
+      setLoadingRewrite(false);
+    }
+  };
 
   if (!analysis) {
   return (
@@ -45,6 +66,62 @@ export default function Analysis() {
           <MatchScore score={analysis.matchScore} />
         </div>
 
+        {/* Smart Rewrite Section */}
+        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-8 border border-indigo-100 shadow-sm">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+            <div>
+              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                Smart Resume Rewriter
+              </h3>
+              <p className="text-gray-600 mt-1">Get AI-powered rewrites for your bullet points to match this job.</p>
+            </div>
+            
+            {!rewrites && (
+              <button
+                onClick={handleRewrite}
+                disabled={loadingRewrite}
+                className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:bg-indigo-700 hover:shadow-indigo-500/30 transition-all transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {loadingRewrite ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                    <span>Rewriting...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    <span>Rewrite Bullet Points</span>
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+
+          {rewrites && (
+            <div className="space-y-6 animate-fade-in">
+              {rewrites.map((item, index) => (
+                <div key={index} className="bg-white rounded-xl p-6 border border-indigo-100 shadow-sm">
+                  <div className="mb-4">
+                    <span className="text-xs font-bold text-red-500 uppercase tracking-wide bg-red-50 px-2 py-1 rounded">Original</span>
+                    <p className="mt-2 text-gray-500 line-through decoration-red-300">{item.original}</p>
+                  </div>
+                  
+                  <div className="mb-4">
+                     <span className="text-xs font-bold text-green-600 uppercase tracking-wide bg-green-50 px-2 py-1 rounded">Rewritten</span>
+                     <p className="mt-2 text-gray-900 font-medium text-lg">{item.rewritten}</p>
+                  </div>
+
+                  <div className="bg-indigo-50 rounded-lg p-3 text-sm text-indigo-700 flex gap-2">
+                    <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    {item.explanation}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="flex flex-col h-full transform transition-all duration-300 hover:translate-y-[-2px]">
             <GapList
@@ -71,6 +148,8 @@ export default function Analysis() {
         <div className="transform transition-all duration-300 hover:translate-y-[-2px]">
           <Suggestions suggestions={analysis.suggestions} />
         </div>
+
+
       </div>
     </div>
   );
