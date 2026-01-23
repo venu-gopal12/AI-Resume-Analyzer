@@ -25,8 +25,8 @@ export const calculateMatchScore = ({
   );
 
   const score =
-    semanticSimilarity * 60 +
-    toolMatchRatio * 30 +
+    semanticSimilarity * 40 +
+    toolMatchRatio * 50 +
     abilityMatchRatio * 10;
 
   return {

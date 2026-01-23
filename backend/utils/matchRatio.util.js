@@ -1,18 +1,15 @@
 import { canonicalizeSkill } from "./canonicalSkill.util.js";
 
-export const calculateMatchRatio = (
-  resumeItems = [],
-  jdItems = []
-) => {
-  if (jdItems.length === 0) return 1;
+export const calculateMatchRatio = (resumeItems = [], jdItems = []) => {
+  if (!jdItems || jdItems.length === 0) return 1; // logical default: if no requirements, 100% match
+  if (!resumeItems || resumeItems.length === 0) return 0;
 
-  const resumeSet = new Set(
-    resumeItems.map(canonicalizeSkill)
-  );
+  const resumeSet = new Set(resumeItems.map(canonicalizeSkill));
+  const jdCanonical = jdItems.map(canonicalizeSkill);
 
-  const matched = jdItems.filter(
-    item => resumeSet.has(canonicalizeSkill(item))
-  );
+  const matchCount = jdCanonical.reduce((count, item) => {
+    return count + (resumeSet.has(item) ? 1 : 0);
+  }, 0);
 
-  return matched.length / jdItems.length;
+  return matchCount / jdCanonical.length;
 };

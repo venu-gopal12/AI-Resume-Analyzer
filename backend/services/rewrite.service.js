@@ -11,6 +11,7 @@ You are an expert resume writer. I will provide a resume, a job description (JD)
 Your task:
 1. Identify 3 weak or generic bullet points in the resume that could be improved to show the missing skills.
 2. Rewrite them to be powerful, quantitative, and keyword-rich, specifically targeting the Job Description and Missing Skills.
+3. Use the STAR Method (Situation, Task, Action, Result) to frame the rewrites where possible.
 
 Resume Content:
 ${resumeText.substring(0, 3000)}... (truncated for context)

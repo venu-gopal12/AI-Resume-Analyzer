@@ -19,6 +19,10 @@ Rules:
 - Prefer noun phrases over verbs
 - Do NOT paraphrase unless required
 - Exclude soft skills and personality traits
+- **CRITICAL**: Return the "Canonical" or standard name for technologies.
+  - Example: "React.js" -> "React"
+  - Example: "Amazon Web Services" -> "AWS"
+  - Example: "NodeJS" -> "Node.js"
 
 Categories:
 1. toolsAndTechnologies
@@ -48,5 +52,12 @@ Output format:
     ]
   });
 
-  return JSON.parse(response.choices[0].message.content);
+  try {
+    const content = response.choices[0].message.content;
+    const jsonString = content.replace(/```json/g, "").replace(/```/g, "");
+    return JSON.parse(jsonString);
+  } catch (e) {
+    console.error("JSON Parsing failed, returning empty structure", e);
+    return { toolsAndTechnologies: [], technicalAbilities: [] };
+  }
 };

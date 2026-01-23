@@ -24,6 +24,18 @@ export default function Dashboard() {
     }
   };
 
+  const handleDelete = async (id, e) => {
+    e.stopPropagation();
+    if (!window.confirm("Are you sure you want to delete this analysis?")) return;
+
+    try {
+      await api.delete(`/analysis/${id}`);
+      setHistory(history.filter(item => item._id !== id));
+    } catch (error) {
+      console.error("Failed to delete analysis", error);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.clear();
     logout();
@@ -130,8 +142,17 @@ export default function Dashboard() {
                   </div>
                   {/* Since we don't have a view-details route yet, we'll just show the date or placeholder action */}
                   {/* Implementing 'View Details' would require restructuring Analysis page to take ID, keeping it simple for now */}
-                   <div className="text-right">
+                   <div className="flex items-center gap-4">
                        <span className="text-xs font-medium text-gray-400 bg-gray-100 px-2 py-1 rounded">Completed</span>
+                       <button
+                         onClick={(e) => handleDelete(item._id, e)}
+                         className="text-gray-400 hover:text-red-600 transition-colors p-2 hover:bg-red-50 rounded-full group"
+                         title="Delete Analysis"
+                       >
+                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                         </svg>
+                       </button>
                    </div>
                 </div>
               ))}

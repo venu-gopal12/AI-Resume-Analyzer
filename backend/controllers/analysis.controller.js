@@ -135,3 +135,21 @@ export const rewriteResume = async (req, res) => {
     res.status(500).json({ message: "Failed to rewrite resume" });
   }
 };
+
+export const deleteAnalysis = async (req, res) => {
+  try {
+    const analysis = await Analysis.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user.userId // Ensure user owns the analysis
+    });
+
+    if (!analysis) {
+      return res.status(404).json({ message: "Analysis not found or unauthorized" });
+    }
+
+    res.json({ message: "Analysis deleted successfully" });
+  } catch (error) {
+    logger.error("Error deleting analysis", error);
+    res.status(500).json({ message: "Failed to delete analysis" });
+  }
+};

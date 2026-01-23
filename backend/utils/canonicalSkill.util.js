@@ -21,8 +21,8 @@ export const canonicalizeSkill = (skill) => {
     // remove filler words
     .replace(/\b(framework|library|tool)\b/g, "")
 
-    // clean symbols
-    .replace(/[^a-z0-9\s]/g, " ")
+    // clean symbols (allow +, #, .)
+    .replace(/[^a-z0-9\s+#.]/g, " ")
 
     // normalize spaces
     .replace(/\s+/g, " ")
