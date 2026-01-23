@@ -61,6 +61,13 @@ app.use("/api/embeddings", embeddingTestRoutes);
 
 app.use("/api/match-score", matchScoreTestRoutes);
 app.use("/api/analysis", analysisRoutes);
+
+app.use((req, res, next) => {
+  const error = new Error(`Not Found - ${req.originalUrl}`);
+  error.statusCode = 404;
+  next(error);
+});
+
 app.use(globalErrorHandler);
 
 const PORT = process.env.PORT || 5000;
